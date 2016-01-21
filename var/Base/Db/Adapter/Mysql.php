@@ -29,7 +29,7 @@ class Mysql_Adapter implements Adapter{
     /**
      * 数据库连接函数
      *
-     * @param Typecho_Config $config 数据库配置
+     * @param Config $config 数据库配置
      * @return resource
      */
     public function connect(Config $config)
@@ -45,7 +45,7 @@ class Mysql_Adapter implements Adapter{
      * @param string $action 数据库动作
      * @return resource
      */
-    public function query($query, $handle, $op = Typecho_Db::READ, $action = NULL)
+    public function query($query, $handle, $op = Db::READ, $action = NULL)
     {}
 
     /**

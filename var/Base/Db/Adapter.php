@@ -18,7 +18,7 @@ interface Adapter{
     /**
      * 数据库连接函数
      *
-     * @param Typecho_Config $config 数据库配置
+     * @param Config $config 数据库配置
      * @return resource
      */
     public function connect(Config $config);
@@ -32,7 +32,7 @@ interface Adapter{
      * @param string $action 数据库动作
      * @return resource
      */
-    public function query($query, $handle, $op = Typecho_Db::READ, $action = NULL);
+    public function query($query, $handle, $op = Db::READ, $action = NULL);
 
     /**
      * 将数据查询的其中一行作为数组取出,其中字段名对应数组键值
