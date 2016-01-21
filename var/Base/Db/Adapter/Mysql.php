@@ -1,0 +1,25 @@
+<?php
+/**
+ * Author: Javan
+ * Date: 2016/1/21
+ * Description:
+ */
+
+class Mysql_Adapter extends Adapter{
+
+
+
+
+
+
+    /**
+     * ÅÐ¶ÏÊÊÅäÆ÷ÊÇ·ñ¿ÉÓÃ
+     *
+     * @access public
+     * @return boolean
+     */
+    public static function isAvailable()
+    {
+        return function_exists('mysql_connect');
+    }
+}
