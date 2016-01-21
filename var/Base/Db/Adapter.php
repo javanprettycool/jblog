@@ -13,7 +13,7 @@ interface Adapter{
      * @access public
      * @return boolean
      */
-    public function isAvailable();
+    public static function isAvailable();
 
     /**
      * 数据库连接函数
@@ -93,5 +93,6 @@ interface Adapter{
      * @return integer
      */
     public function lastInsertId($resource, $handle);
+
 
 }

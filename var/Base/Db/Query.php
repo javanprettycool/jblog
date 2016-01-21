@@ -32,7 +32,7 @@ class Query{
     /**
      * 数据库适配器
      *
-     * @var Typecho_Db_Adapter
+     * @var Adapter
      */
     private $_adapter;
 
@@ -123,6 +123,30 @@ class Query{
     }
 
     /**
+     * 从参数中合成查询字段
+     *
+     * @access private
+     * @param array $parameters
+     * @return string
+     */
+    private function getColumnFromParameters(array $parameters)
+    {
+        $fields = array();
+
+        foreach ($parameters as $value) {
+            if (is_array($value)) {
+                foreach ($value as $key => $val) {
+                    $fields[] = $key . ' AS ' . $val;
+                }
+            } else {
+                $fields[] = $value;
+            }
+        }
+
+        return $this->filterColumn(implode(' , ', $fields));
+    }
+
+    /**
      * 过滤表前缀,表前缀由table.构成
      *
      * @param string $string 需要解析的字符串
@@ -150,7 +174,7 @@ class Query{
      *
      * @access public
      * @param string $attributeName 属性名称
-     * @return Typecho_Db_Query
+     * @return Query
      */
     public function cleanAttribute($attributeName)
     {
@@ -163,7 +187,7 @@ class Query{
      * 查询行数限制
      *
      * @param integer $limit 需要查询的行数
-     * @return Typecho_Db_Query
+     * @return Query
      */
     public function limit($limit)
     {
@@ -175,7 +199,7 @@ class Query{
      * 查询行数偏移量
      *
      * @param integer $offset 需要偏移的行数
-     * @return Typecho_Db_Query
+     * @return Query
      */
     public function offset($offset)
     {
@@ -188,7 +212,7 @@ class Query{
      *
      * @param integer $page 页数
      * @param integer $pageSize 每页行数
-     * @return Typecho_Db_Query
+     * @return Query
      */
     public function page($page, $pageSize)
     {
@@ -196,5 +220,36 @@ class Query{
         $this->_sqlPreBuild['limit'] = $pageSize;
         $this->_sqlPreBuild['offset'] = (max(intval($page), 1) - 1) * $pageSize;
         return $this;
+    }
+
+    public function select($field = "*")
+    {
+        $this->_sqlPreBuild['action'] = Db::SELECT;
+        $this->_sqlPreBuild['field'] = $this->getColumnFromParameters($field);
+    }
+
+
+    public function from($table)
+    {
+        $this->_sqlPreBuild['table'] = $this->filterPrefix($table);
+        return $this;
+    }
+
+    /**
+     * AND条件查询语句
+     */
+    public function where()
+    {
+        $condition = func_get_arg(0);
+        $condition = str_replace("?", "%s", $this->filterColumn($condition));
+        $operate = empty($this->_sqlPreBuild['where']) ? 'WHERE' : 'AND';
+
+        if (func_num_args() <= 1){
+            $this->_sqlPreBuild['where'] .= $operate . '(' . $condition . ')';
+        } else {
+            $args = func_get_args();
+            array_shift($args);
+            $this->_sqlPreBuild['where'] .= $operate . '(' . vsprintf($condition, $this->filterColumn($args)) . ')';
+        }
     }
 }

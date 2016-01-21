@@ -44,14 +44,14 @@ class Db{
 
     /**
      * 数据库适配器
-     * @var Typecho_Db_Adapter
+     * @var Adapter
      */
     private $_adapter;
     /**
      * 默认配置
      *
      * @access private
-     * @var Typecho_Config
+     * @var Config
      */
     private $_config;
 
@@ -89,7 +89,7 @@ class Db{
 
     /**
      * 实例化的数据库对象
-     * @var Typecho_Db
+     * @var Db
      */
     private static $_instance;
 
@@ -116,16 +116,99 @@ class Db{
         $this->_adapter = new $adapterName();
     }
 
+    /**
+     * 获取SQL词法构建器实例化对象
+     *
+     * @return Query
+     */
+    public function sql()
+    {
+        return new Query($this->_adapter, $this->_prefix);
+    }
 
 
-
-    public function get()
+    public static function get()
     {
         if (empty(self::$_instance)){
             throw new Db_Exception("Missing Database Object");
         }
         return self::$_instance;
     }
+
+
+    public static function set(Db $db)
+    {
+        self::$_instance = $db;
+    }
+
+    public function select()
+    {
+        $args = func_get_args();
+        return call_user_func(array($this->sql(), "select"), $args ? $args : NULL);
+    }
+
+
+    public function delete()
+    {
+
+    }
+
+    public function update()
+    {
+
+    }
+
+
+    public function  query()
+    {
+
+    }
+    
+    /**
+     * 一次取出所有行
+     *
+     * @param mixed $query 查询对象
+     * @param array $filter 行过滤器函数,将查询的每一行作为第一个参数传入指定的过滤器中
+     * @return array
+     */
+    public function fectchAll($query, array $filter = NULL)
+    {
+        $resource = $this->query($query, self::READ);
+        $result = array();
+
+        if (!empty($filter))
+        {
+            list($object, $method) = $filter;
+        }
+
+        while ($row = $this->_adapter->fetch($resource)){
+            $result[] = $filter ? call_user_func(array(&$object, $method), $row) : $row;
+        }
+
+        return $result;
+    }
+
+    /**
+     * 转义参数
+     *
+     * @param array $values
+     * @access protected
+     * @return array
+     */
+    protected function quoteValues(array $values)
+    {
+        foreach ($values as &$value) {
+            if (is_array($value)) {
+                $value = '(' . implode(',', array_map(array($this->_adapter, 'quoteValue'), $value)) . ')';
+            } else {
+                $value = $this->_adapter->quoteValue($value);
+            }
+        }
+
+        return $values;
+    }
+
+
 
 
 
