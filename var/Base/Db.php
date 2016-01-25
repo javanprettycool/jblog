@@ -6,49 +6,50 @@
  */
 
 class Db{
-    /** ¶ÁÈ¡Êý¾Ý¿â */
+    /** è¯»å–æ•°æ®åº“ */
     const READ = 1;
 
-    /** Ð´ÈëÊý¾Ý¿â */
+    /** å†™å…¥æ•°æ®åº“ */
     const WRITE = 2;
 
-    /** ÉýÐò·½Ê½ */
+    /** å‡åºæ–¹å¼ */
     const SORT_ASC = 'ASC';
 
-    /** ½µÐò·½Ê½ */
+    /** é™åºæ–¹å¼ */
     const SORT_DESC = 'DESC';
 
-    /** ±íÄÚÁ¬½Ó·½Ê½ */
+    /** è¡¨å†…è¿žæŽ¥æ–¹å¼ */
     const INNER_JOIN = 'INNER';
 
-    /** ±íÍâÁ¬½Ó·½Ê½ */
+    /** è¡¨å¤–è¿žæŽ¥æ–¹å¼ */
     const OUTER_JOIN = 'OUTER';
 
-    /** ±í×óÁ¬½Ó·½Ê½ */
+    /** è¡¨å·¦è¿žæŽ¥æ–¹å¼ */
     const LEFT_JOIN = 'LEFT';
 
-    /** ±íÍâÁ¬½Ó·½Ê½ */
+    /** è¡¨å¤–è¿žæŽ¥æ–¹å¼ */
     const RIGHT_JOIN = 'RIGHT';
 
-    /** Êý¾Ý¿â²éÑ¯²Ù×÷ */
+    /** æ•°æ®åº“æŸ¥è¯¢æ“ä½œ */
     const SELECT = 'SELECT';
 
-    /** Êý¾Ý¿â¸üÐÂ²Ù×÷ */
+    /** æ•°æ®åº“æ›´æ–°æ“ä½œ */
     const UPDATE = 'UPDATE';
 
-    /** Êý¾Ý¿â²åÈë²Ù×÷ */
+    /** æ•°æ®åº“æ’å…¥æ“ä½œ */
     const INSERT = 'INSERT';
 
-    /** Êý¾Ý¿âÉ¾³ý²Ù×÷ */
+    /** æ•°æ®åº“åˆ é™¤æ“ä½œ */
     const DELETE = 'DELETE';
 
     /**
-     * Êý¾Ý¿âÊÊÅäÆ÷
-     * @var Adapter
+     * æ•°æ®åº“é€‚é…å™¨
+     * @var Db_Adapter
      */
     private $_adapter;
+
     /**
-     * Ä¬ÈÏÅäÖÃ
+     * é»˜è®¤é…ç½®
      *
      * @access private
      * @var Config
@@ -56,7 +57,7 @@ class Db{
     private $_config;
 
     /**
-     * Á¬½Ó³Ø
+     * è¿žæŽ¥æ± 
      *
      * @access private
      * @var array
@@ -64,7 +65,7 @@ class Db{
     private $_pool;
 
     /**
-     * ÒÑ¾­Á¬½Ó
+     * å·²ç»è¿žæŽ¥
      *
      * @access private
      * @var array
@@ -72,7 +73,7 @@ class Db{
     private $_connectedPool;
 
     /**
-     * Ç°×º
+     * å‰ç¼€
      *
      * @access private
      * @var string
@@ -80,7 +81,7 @@ class Db{
     private $_prefix;
 
     /**
-     * ÊÊÅäÆ÷Ãû³Æ
+     * é€‚é…å™¨åç§°
      *
      * @access private
      * @var string
@@ -88,7 +89,7 @@ class Db{
     private $_adapterName;
 
     /**
-     * ÊµÀý»¯µÄÊý¾Ý¿â¶ÔÏó
+     * å®žä¾‹åŒ–çš„æ•°æ®åº“å¯¹è±¡
      * @var Db
      */
     private static $_instance;
@@ -99,9 +100,9 @@ class Db{
     {
         $this->_adapterName = $adapterName;
 
-        $adapterName = "Db_Adapter_" . $adapterName;
+        $adapterName = 'Db_Adapter_' . $adapterName;
 
-        if (call_user_func(array($adapterName, "isAvailbale"))){
+        if (!call_user_func(array($adapterName, "isAvailable"))){
             throw new Db_Exception("Adapter {$adapterName} is not available");
         }
 
@@ -117,13 +118,13 @@ class Db{
     }
 
     /**
-     * »ñÈ¡SQL´Ê·¨¹¹½¨Æ÷ÊµÀý»¯¶ÔÏó
+     * ï¿½ï¿½È¡SQLï¿½Ê·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @return Query
+     * @return Db_Query
      */
     public function sql()
     {
-        return new Query($this->_adapter, $this->_prefix);
+        return new Db_Query($this->_adapter, $this->_prefix);
     }
 
 
@@ -144,7 +145,7 @@ class Db{
     public function select()
     {
         $args = func_get_args();
-        return call_user_func(array($this->sql(), "select"), $args ? $args : NULL);
+        return call_user_func_array(array($this->sql(), "select"), $args ? $args : array('*'));
     }
 
 
@@ -159,23 +160,61 @@ class Db{
     }
 
 
-    public function  query()
+    public function  query($query, $op = self::READ, $action = self::SELECT)
     {
+        if ($query instanceof Db_Query) {
+            $action = $query->getAttribute('action');
+            $op = ($action == self::INSERT || $action == self::DELETE
+                || $action == self::UPDATE) ? self::WRITE : self::READ;
+        } else if (!is_string($query)) {
+            return $query;
+        }
 
+        if (!isset($this->_connectedPool[$op])) {
+            if (empty($this->_pool[$op])) {
+                throw new Db_Exception("Miss db connection");
+            }
+
+            $selectConnection = rand(0, count($this->_pool[$op]) - 1);
+            $selectConnectionConfig = $this->_config[$this->_pool[$op][$selectConnection]];
+            $selectConnectionHandle = $this->_adapter->connect($selectConnectionConfig);
+            $this->_connectedPool[$op] = &$selectConnectionHandle;
+        }
+
+        $handle = $this->_connectedPool[$op];
+        //var_dump($query);
+        $resource = $this->_adapter->query($query, $handle);
+
+        //var_dump($action);
+        if ($action) {
+            switch ($action) {
+                case self::UPDATE:
+                case self::DELETE:
+                    return $this->_adapter->affectedRows($resource, $handle);
+                case self::INSERT:
+                    return $this->_adapter->lastInsertId($resource, $handle);
+                case self::SELECT:
+                default:
+                    return $resource;
+            }
+
+        } else {
+            return $resource;
+        }
     }
 
     /**
-     * Ò»´ÎÈ¡³öËùÓÐÐÐ
+     * Ò»ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @param mixed $query ²éÑ¯¶ÔÏó
-     * @param array $filter ÐÐ¹ýÂËÆ÷º¯Êý,½«²éÑ¯µÄÃ¿Ò»ÐÐ×÷ÎªµÚÒ»¸ö²ÎÊý´«ÈëÖ¸¶¨µÄ¹ýÂËÆ÷ÖÐ
+     * @param mixed $Db_Query ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½
+     * @param array $filter ï¿½Ð¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½Ã¿Ò»ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      * @return array
      */
-    public function fectchAll($query, array $filter = NULL)
-    {
+    public function fetchAll(Db_Query $query, array $filter = NULL)
+    {   //var_dump($query);
         $resource = $this->query($query, self::READ);
         $result = array();
-
+        var_dump($resource);
         if (!empty($filter))
         {
             list($object, $method) = $filter;
@@ -189,7 +228,7 @@ class Db{
     }
 
     /**
-     * ×ªÒå²ÎÊý
+     * ×ªï¿½ï¿½ï¿½ï¿½ï¿½
      *
      * @param array $values
      * @access protected
@@ -208,6 +247,26 @@ class Db{
         return $values;
     }
 
+
+    public function addServer($config, $op)
+    {
+        $this->_config[] = Config::factory($config);
+        $key = count($this->_config) - 1;
+
+        /** å°†è¿žæŽ¥æ”¾å…¥æ± ä¸­ */
+        switch ($op) {
+            case self::READ:
+            case self::WRITE:
+                $this->_pool[$op][] = $key;
+                break;
+            default:
+                $this->_pool[self::READ][] = $key;
+                $this->_pool[self::WRITE][] = $key;
+                break;
+        }
+
+        //var_dump($this->_pool);
+    }
 
 
 

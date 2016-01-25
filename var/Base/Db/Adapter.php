@@ -5,10 +5,10 @@
  * Description:
  */
 
-interface Adapter{
+interface Db_Adapter{
 
     /**
-     * ÅÐ¶ÏÊÊÅäÆ÷ÊÇ·ñ¿ÉÓÃ
+     * ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
      *
      * @access public
      * @return boolean
@@ -16,50 +16,50 @@ interface Adapter{
     public static function isAvailable();
 
     /**
-     * Êý¾Ý¿âÁ¬½Óº¯Êý
+     * ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½Óºï¿½ï¿½ï¿½
      *
-     * @param Config $config Êý¾Ý¿âÅäÖÃ
+     * @param Config $config ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½
      * @return resource
      */
     public function connect(Config $config);
 
     /**
-     * Ö´ÐÐÊý¾Ý¿â²éÑ¯
+     * Ö´ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ñ¯
      *
-     * @param string $query Êý¾Ý¿â²éÑ¯SQL×Ö·û´®
-     * @param mixed $handle Á¬½Ó¶ÔÏó
-     * @param integer $op Êý¾Ý¿â¶ÁÐ´×´Ì¬
-     * @param string $action Êý¾Ý¿â¶¯×÷
+     * @param string $query ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ñ¯SQLï¿½Ö·ï¿½ï¿½ï¿½
+     * @param mixed $handle ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
+     * @param integer $op ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ð´×´Ì¬
+     * @param string $action ï¿½ï¿½ï¿½Ý¿â¶¯ï¿½ï¿½
      * @return resource
      */
     public function query($query, $handle, $op = Db::READ, $action = NULL);
 
     /**
-     * ½«Êý¾Ý²éÑ¯µÄÆäÖÐÒ»ÐÐ×÷ÎªÊý×éÈ¡³ö,ÆäÖÐ×Ö¶ÎÃû¶ÔÓ¦Êý×é¼üÖµ
+     * ï¿½ï¿½ï¿½ï¿½ï¿½Ý²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êý¾Ý
+     * @param resource $resource ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
      * @return array
      */
     public function fetch($resource);
 
     /**
-     * ½«Êý¾Ý²éÑ¯µÄÆäÖÐÒ»ÐÐ×÷Îª¶ÔÏóÈ¡³ö,ÆäÖÐ×Ö¶ÎÃû¶ÔÓ¦¶ÔÏóÊôÐÔ
+     * ï¿½ï¿½ï¿½ï¿½ï¿½Ý²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êý¾Ý
+     * @param resource $resource ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
      * @return object
      */
     public function fetchObject($resource);
 
     /**
-     * ÒýºÅ×ªÒåº¯Êý
+     * ï¿½ï¿½ï¿½ï¿½×ªï¿½åº¯ï¿½ï¿½
      *
-     * @param string $string ÐèÒª×ªÒåµÄ×Ö·û´®
+     * @param string $string ï¿½ï¿½Òª×ªï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
      * @return string
      */
     public function quoteValue($string);
 
     /**
-     * ¶ÔÏóÒýºÅ¹ýÂË
+     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½
      *
      * @access public
      * @param string $string
@@ -68,28 +68,28 @@ interface Adapter{
     public function quoteColumn($string);
 
     /**
-     * ºÏ³É²éÑ¯Óï¾ä
+     * ï¿½Ï³É²ï¿½Ñ¯ï¿½ï¿½ï¿½
      *
      * @access public
-     * @param array $sql ²éÑ¯¶ÔÏó´Ê·¨Êý×é
+     * @param array $sql ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ê·ï¿½ï¿½ï¿½ï¿½ï¿½
      * @return string
      */
     public function parseSelect(array $sql);
 
     /**
-     * È¡³ö×îºóÒ»´Î²éÑ¯Ó°ÏìµÄÐÐÊý
+     * È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î²ï¿½Ñ¯Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êý¾Ý
-     * @param mixed $handle Á¬½Ó¶ÔÏó
+     * @param resource $resource ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
+     * @param mixed $handle ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
      * @return integer
      */
     public function affectedRows($resource, $handle);
 
     /**
-     * È¡³ö×îºóÒ»´Î²åÈë·µ»ØµÄÖ÷¼üÖµ
+     * È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î²ï¿½ï¿½ë·µï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½Öµ
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êý¾Ý
-     * @param mixed $handle Á¬½Ó¶ÔÏó
+     * @param resource $resource ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
+     * @param mixed $handle ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
      * @return integer
      */
     public function lastInsertId($resource, $handle);

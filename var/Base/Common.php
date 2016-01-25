@@ -8,12 +8,12 @@
 
 class Common{
     /**
-     * °æ±¾
+     * ï¿½æ±¾
      */
     const VERSION = "0.1";
 
     /**
-     * Ä¬ÈÏ±àÂë
+     * Ä¬ï¿½Ï±ï¿½ï¿½ï¿½
      *
      * @access public
      * @var string
@@ -21,7 +21,7 @@ class Common{
     public static $charset = 'UTF-8';
 
     /**
-     * Òì³£´¦ÀíÀà
+     * ï¿½ì³£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
      * @access public
      * @var string
@@ -37,16 +37,30 @@ class Common{
         if (function_exists("spl_autoload_register")) {
             spl_autoload_register(array("Common", "__autoLoad"));
         } else {
-            function __autoLoad()
+            function __autoLoad($className)
             {
-
+                Common::__autoLoad($className);
             }
         }
+
+
+        @set_exception_handler(array('Common', 'exceptionHandle'));
     }
 
 
     public static function __autoLoad($className)
+    {   //echo 'Base/' . str_replace(array("\\", "_"), "/", $className) . ".php";
+        include_once 'Base/' . str_replace(array("\\", "_"), "/", $className) . ".php";
+    }
+
+
+    public static function exceptionHandle(Exception $exception)
     {
-        @include_once str_replace(array("\\", "_"), "/", $className) . ".php";
+        echo $exception->getMessage();
+    }
+
+    public static function url($path, $prefix)
+    {
+
     }
 }

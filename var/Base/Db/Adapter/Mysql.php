@@ -5,10 +5,10 @@
  * Description:
  */
 
-class Mysql_Adapter implements Adapter{
+class Db_Adapter_Mysql implements Db_Adapter{
 
     /**
-     * Êı¾İ¿âÁ¬½Ó×Ö·û´®±êÊ¾
+     * æ•°æ®åº“è¿æ¥å­—ç¬¦ä¸²æ ‡ç¤º
      *
      * @access private
      * @var resource
@@ -16,42 +16,60 @@ class Mysql_Adapter implements Adapter{
     private $_dbLink;
 
     /**
-     * ÅĞ¶ÏÊÊÅäÆ÷ÊÇ·ñ¿ÉÓÃ
+     * åˆ¤æ–­é€‚é…å™¨æ˜¯å¦å¯ç”¨
      *
      * @access public
      * @return boolean
      */
     public static function isAvailable()
     {
-        return function_exists("mysql_connect");
+        return function_exists('mysql_connect');
     }
 
     /**
-     * Êı¾İ¿âÁ¬½Óº¯Êı
+     * æ•°æ®åº“è¿æ¥å‡½æ•°
      *
-     * @param Config $config Êı¾İ¿âÅäÖÃ
+     * @param Config $config æ•°æ®åº“é…ç½®
+     * @throws Db_Exception
      * @return resource
      */
     public function connect(Config $config)
-    {}
+    {
+        if ($this->_dbLink = @mysql_connect($config->host . (empty($config->port) ? '' : ':' . $config->port),
+        $config->user, $config->password, true)) {
+            if (@mysql_select_db($config->database, $this->_dbLink)) {
+                if ($config->charset) {
+                    mysql_query("SET NAME '{$config->charset}'", $this->_dbLink);
+                }
+                return $this->_dbLink;
+            }
+        }
+    }
 
 
     /**
-     * Ö´ĞĞÊı¾İ¿â²éÑ¯
+     * æ‰§è¡Œæ•°æ®åº“æŸ¥è¯¢
      *
-     * @param string $query Êı¾İ¿â²éÑ¯SQL×Ö·û´®
-     * @param mixed $handle Á¬½Ó¶ÔÏó
-     * @param integer $op Êı¾İ¿â¶ÁĞ´×´Ì¬
-     * @param string $action Êı¾İ¿â¶¯×÷
+     * @param string $query æ•°æ®åº“æŸ¥è¯¢SQLå­—ç¬¦ä¸²
+     * @param mixed $handle è¿æ¥å¯¹è±¡
+     * @param integer $op æ•°æ®åº“è¯»å†™çŠ¶æ€
+     * @param string $action æ•°æ®åº“åŠ¨ä½œ
+     * @throws Db_Exception
      * @return resource
      */
     public function query($query, $handle, $op = Db::READ, $action = NULL)
-    {}
+    {
+        if ($resource = @mysql_query($query instanceof Db_Query ? $query->__toString() : $query, $handle)) {
+            return $resource;
+        }
+
+        throw new Db_Exception(@mysql_error($this->_dbLink), @mysql_errno($this->_dbLink));
+    }
 
     /**
-     * ½«Êı¾İ²éÑ¯µÄÆäÖĞÒ»ĞĞ×÷ÎªÊı×éÈ¡³ö,ÆäÖĞ×Ö¶ÎÃû¶ÔÓ¦Êı×é¼üÖµ
+     * å°†æ•°æ®æŸ¥è¯¢çš„å…¶ä¸­ä¸€è¡Œä½œä¸ºæ•°ç»„å–å‡º,å…¶ä¸­å­—æ®µåå¯¹åº”æ•°ç»„é”®å€¼
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êı¾İ
+     * @param resource $resource æŸ¥è¯¢è¿”å›èµ„æºæ ‡è¯†
      * @return array
      */
     public function fetch($resource)
@@ -60,9 +78,9 @@ class Mysql_Adapter implements Adapter{
     }
 
     /**
-     * ½«Êı¾İ²éÑ¯µÄÆäÖĞÒ»ĞĞ×÷Îª¶ÔÏóÈ¡³ö,ÆäÖĞ×Ö¶ÎÃû¶ÔÓ¦¶ÔÏóÊôĞÔ
+     * å°†æ•°æ®æŸ¥è¯¢çš„å…¶ä¸­ä¸€è¡Œä½œä¸ºå¯¹è±¡å–å‡º,å…¶ä¸­å­—æ®µåå¯¹åº”å¯¹è±¡å±æ€§
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êı¾İ
+     * @param resource $resource æŸ¥è¯¢çš„èµ„æºæ•°æ®
      * @return object
      */
     public function fetchObject($resource)
@@ -71,9 +89,9 @@ class Mysql_Adapter implements Adapter{
     }
 
     /**
-     * ÒıºÅ×ªÒåº¯Êı
+     * å¼•å·è½¬ä¹‰å‡½æ•°
      *
-     * @param string $string ĞèÒª×ªÒåµÄ×Ö·û´®
+     * @param string $string éœ€è¦è½¬ä¹‰çš„å­—ç¬¦ä¸²
      * @return string
      */
     public function quoteValue($string)
@@ -82,7 +100,7 @@ class Mysql_Adapter implements Adapter{
     }
 
     /**
-     * ¶ÔÏóÒıºÅ¹ıÂË
+     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½
      *
      * @access public
      * @param string $string
@@ -94,20 +112,33 @@ class Mysql_Adapter implements Adapter{
     }
 
     /**
-     * ºÏ³É²éÑ¯Óï¾ä
+     * ï¿½Ï³É²ï¿½Ñ¯ï¿½ï¿½ï¿½
      *
      * @access public
-     * @param array $sql ²éÑ¯¶ÔÏó´Ê·¨Êı×é
+     * @param array $sql ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ê·ï¿½ï¿½ï¿½ï¿½ï¿½
      * @return string
      */
     public function parseSelect(array $sql)
-    {}
+    {
+        if (!empty($sql['join'])) {
+            foreach ($sql['join'] as $val ) {
+                list($table, $condition, $op) = $val;
+                $sql['table'] = "{$sql['table']} {$op} JOIN {$table} ON {$condition}";
+            }
+        }
+
+        $sql['limit'] = empty($sql['limit']) ? NULL : 'LIMIT' . $sql['limit'];
+        $sql['offset'] = empty($sql['offset']) ? NULL : 'OFFSET' . $sql['offset'];
+
+        return 'SELECT ' . $sql['fields'] . ' FROM ' . $sql['table'] .
+        $sql['where'] . $sql['group'] . $sql['having'] . $sql['order'] . $sql['limit'] . $sql['offset'];
+    }
 
     /**
-     * È¡³ö×îºóÒ»´Î²éÑ¯Ó°ÏìµÄĞĞÊı
+     * È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î²ï¿½Ñ¯Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êı¾İ
-     * @param mixed $handle Á¬½Ó¶ÔÏó
+     * @param resource $resource ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
+     * @param mixed $handle ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
      * @return integer
      */
     public function affectedRows($resource, $handle)
@@ -116,10 +147,10 @@ class Mysql_Adapter implements Adapter{
     }
 
     /**
-     * È¡³ö×îºóÒ»´Î²åÈë·µ»ØµÄÖ÷¼üÖµ
+     * È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î²ï¿½ï¿½ë·µï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½Öµ
      *
-     * @param resource $resource ²éÑ¯µÄ×ÊÔ´Êı¾İ
-     * @param mixed $handle Á¬½Ó¶ÔÏó
+     * @param resource $resource ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
+     * @param mixed $handle ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
      * @return integer
      */
     public function lastInsertId($resource, $handle)

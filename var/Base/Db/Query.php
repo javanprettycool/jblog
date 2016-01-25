@@ -5,12 +5,12 @@
  * Description:
  */
 
-class Query{
-    /** ���ݿ�ؼ��� */
+class Db_Query{
+    /** 数据库关键字 */
     const KEYWORDS = '*PRIMARY|AND|OR|LIKE|BINARY|BY|DISTINCT|AS|IN|IS|NULL';
 
     /**
-     * Ĭ���ֶ�
+     * 默认字段
      *
      * @var array
      * @access private
@@ -30,42 +30,58 @@ class Query{
     );
 
     /**
-     * ���ݿ�������
+     * 数据库适配器
      *
      * @var Adapter
      */
     private $_adapter;
 
     /**
-     * ��ѯ���Ԥ�ṹ,�����鹹��,�������ΪSQL��ѯ�ַ���
+     * 查询语句预结构,由数组构成,方便组合为SQL查询字符串
      *
      * @var array
      */
     private $_sqlPreBuild;
 
     /**
-     * ǰ׺
+     * 前缀
      *
      * @access private
      * @var string
      */
     private $_prefix;
 
-
-    public function __construct(Adapter $adapter, $prefix)
+    /**
+     * 构造函数,引用数据库适配器作为内部数据
+     *
+     * @param Adapter $adapter 数据库适配器
+     * @param string $prefix 前缀
+     * @return void
+     */
+    public function __construct(Db_Adapter $adapter, $prefix)
     {
-        $this->_adapter = $adapter;
+        $this->_adapter = &$adapter;
         $this->_prefix = $prefix;
 
         $this->_sqlPreBuild = self::$_default;
     }
 
+    /**
+     * 过滤表前缀,表前缀由table.构成
+     *
+     * @param string $string 需要解析的字符串
+     * @return string
+     */
+    private function filterPrefix($string)
+    {
+        return (0 === strpos($string, 'table.')) ? substr_replace($string, $this->_prefix, 0, 6) : $string;
+    }
 
     /**
-     * ���������ֵ
+     * 过滤数组键值
      *
      * @access private
-     * @param string $str �������ֶ�ֵ
+     * @param string $str 待处理字段值
      * @return string
      */
     private function filterColumn($str)
@@ -123,7 +139,7 @@ class Query{
     }
 
     /**
-     * �Ӳ����кϳɲ�ѯ�ֶ�
+     * 从参数中合成查询字段
      *
      * @access private
      * @param array $parameters
@@ -147,21 +163,40 @@ class Query{
     }
 
     /**
-     * ���˱�ǰ׺,��ǰ׺��table.����
+     * 转义参数
      *
-     * @param string $string ��Ҫ�������ַ���
-     * @return string
+     * @param array $values
+     * @access protected
+     * @return array
      */
-    public function filterPrefix($string)
+    protected function quoteValues(array $values)
     {
-        return (0 === strpos("table.", $string)) ? substr_replace($string, $this->_prefix, 0, 6) : $string;
+        foreach ($values as &$value) {
+            if (is_array($value)) {
+                $value = '(' . implode(',', array_map(array($this->_adapter, 'quoteValue'), $value)) . ')';
+            } else {
+                $value = $this->_adapter->quoteValue($value);
+            }
+        }
+
+        return $values;
     }
 
     /**
-     * ��ȡ��ѯ�ִ�����ֵ
+     * set default params
+     *
+     * @param array $default
+     */
+    public static function setDefault(array $default)
+    {
+        self::$_default = array_merge(self::$_default, $default);
+    }
+
+    /**
+     * 获取查询字串属性值
      *
      * @access public
-     * @param string $attributeName ��������
+     * @param string $attributeName 属性名称
      * @return string
      */
     public function getAttribute($attributeName)
@@ -170,10 +205,10 @@ class Query{
     }
 
     /**
-     * �����ѯ�ִ�����ֵ
+     * 清除查询字串属性值
      *
      * @access public
-     * @param string $attributeName ��������
+     * @param string $attributeName 属性名称
      * @return Query
      */
     public function cleanAttribute($attributeName)
@@ -183,10 +218,73 @@ class Query{
         }
         return $this;
     }
+
     /**
-     * ��ѯ��������
+     * 连接表
      *
-     * @param integer $limit ��Ҫ��ѯ������
+     * @param string $table 需要连接的表
+     * @param string $condition 连接条件
+     * @param string $op 连接方法(LEFT, RIGHT, INNER)
+     * @return Query
+     */
+    public function join($table, $condition, $op = Db::INNER_JOIN)
+    {
+        $this->_sqlPreBuild['join'][] = array($this->filterPrefix($table), $this->filterColumn($condition), $op);
+        return $this;
+    }
+
+    /**
+     * AND条件查询语句
+     *
+     * @param string $condition 查询条件
+     * @param mixed $param 条件值
+     * @return Query
+     */
+    public function where()
+    {
+        $condition = func_get_arg(0);
+        $condition = str_replace('?', "%s", $this->filterColumn($condition));
+        $operator = empty($this->_sqlPreBuild['where']) ? ' WHERE ' : ' AND';
+
+        if (func_num_args() <= 1) {
+            $this->_sqlPreBuild['where'] .= $operator . ' (' . $condition . ')';
+        } else {
+            $args = func_get_args();
+            array_shift($args);
+            $this->_sqlPreBuild['where'] .= $operator . ' (' . vsprintf($condition, $this->quoteValues($args)) . ')';
+        }
+
+        return $this;
+    }
+
+    /**
+     * OR条件查询语句
+     *
+     * @param string $condition 查询条件
+     * @param mixed $param 条件值
+     * @return Query
+     */
+    public function orWhere()
+    {
+        $condition = func_get_arg(0);
+        $condition = str_replace('?', "%s", $this->filterColumn($condition));
+        $operator = empty($this->_sqlPreBuild['where']) ? ' WHERE ' : ' OR';
+
+        if (func_num_args() <= 1) {
+            $this->_sqlPreBuild['where'] .= $operator . ' (' . $condition . ')';
+        } else {
+            $args = func_get_args();
+            array_shift($args);
+            $this->_sqlPreBuild['where'] .= $operator . ' (' . vsprintf($condition, $this->quoteValues($args)) . ')';
+        }
+
+        return $this;
+    }
+
+    /**
+     * 查询行数限制
+     *
+     * @param integer $limit 需要查询的行数
      * @return Query
      */
     public function limit($limit)
@@ -196,9 +294,9 @@ class Query{
     }
 
     /**
-     * ��ѯ����ƫ����
+     * 查询行数偏移量
      *
-     * @param integer $offset ��Ҫƫ�Ƶ�����
+     * @param integer $offset 需要偏移的行数
      * @return Query
      */
     public function offset($offset)
@@ -208,10 +306,10 @@ class Query{
     }
 
     /**
-     * ��ҳ��ѯ
+     * 分页查询
      *
-     * @param integer $page ҳ��
-     * @param integer $pageSize ÿҳ����
+     * @param integer $page 页数
+     * @param integer $pageSize 每页行数
      * @return Query
      */
     public function page($page, $pageSize)
@@ -222,13 +320,104 @@ class Query{
         return $this;
     }
 
-    public function select($field = "*")
+    /**
+     * 指定需要写入的栏目及其值
+     *
+     * @param array $rows
+     * @return Query
+     */
+    public function rows(array $rows)
     {
-        $this->_sqlPreBuild['action'] = Db::SELECT;
-        $this->_sqlPreBuild['field'] = $this->getColumnFromParameters($field);
+        foreach ($rows as $key => $row) {
+            $this->_sqlPreBuild['rows'][$this->filterColumn($key)] = is_null($row) ? 'NULL' : $this->_adapter->quoteValue($row);
+        }
+        return $this;
     }
 
+    /**
+     * 指定需要写入栏目及其值
+     * 单行且不会转义引号
+     *
+     * @param string $key 栏目名称
+     * @param mixed $value 指定的值
+     * @param bool $escape 是否转义
+     * @return Query
+     */
+    public function expression($key, $value, $escape = true)
+    {
+        $this->_sqlPreBuild['rows'][$this->filterColumn($key)] = $escape ? $this->filterColumn($value) : $value;
+        return $this;
+    }
 
+    /**
+     * 排序顺序(ORDER BY)
+     *
+     * @param string $orderby 排序的索引
+     * @param string $sort 排序的方式(ASC, DESC)
+     * @return Query
+     */
+    public function order($orderby, $sort = Db::SORT_ASC)
+    {
+        $this->_sqlPreBuild['order'] = ' ORDER BY ' . $this->filterColumn($orderby) . (empty($sort) ? NULL : ' ' . $sort);
+        return $this;
+    }
+
+    /**
+     * 集合聚集(GROUP BY)
+     *
+     * @param string $key 聚集的键值
+     * @return Query
+     */
+    public function group($key)
+    {
+        $this->_sqlPreBuild['group'] = ' GROUP BY ' . $this->filterColumn($key);
+        return $this;
+    }
+
+    /**
+     * HAVING (HAVING)
+     *
+     * @return Query
+     */
+    public function having()
+    {
+        $condition = func_get_arg(0);
+        $condition = str_replace('?', "%s", $this->filterColumn($condition));
+        $operator = empty($this->_sqlPreBuild['having']) ? ' HAVING ' : ' AND';
+
+        if (func_num_args() <= 1) {
+            $this->_sqlPreBuild['having'] .= $operator . ' (' . $condition . ')';
+        } else {
+            $args = func_get_args();
+            array_shift($args);
+            $this->_sqlPreBuild['having'] .= $operator . ' (' . vsprintf($condition, $this->quoteValues($args)) . ')';
+        }
+
+        return $this;
+    }
+
+    /**
+     * 选择查询字段
+     *
+     * @access public
+     * @param mixed $field 查询字段
+     * @return Query
+     */
+    public function select($field = '*')
+    {
+        $this->_sqlPreBuild['action'] = Db::SELECT;
+        $args = func_get_args();
+
+        $this->_sqlPreBuild['fields'] = $this->getColumnFromParameters($args);
+        return $this;
+    }
+
+    /**
+     * 查询记录操作(SELECT)
+     *
+     * @param string $table 查询的表
+     * @return Query
+     */
     public function from($table)
     {
         $this->_sqlPreBuild['table'] = $this->filterPrefix($table);
@@ -236,20 +425,79 @@ class Query{
     }
 
     /**
-     * AND������ѯ���
+     * 更新记录操作(UPDATE)
+     *
+     * @param string $table 需要更新记录的表
+     * @return Query
      */
-    public function where()
+    public function update($table)
     {
-        $condition = func_get_arg(0);
-        $condition = str_replace("?", "%s", $this->filterColumn($condition));
-        $operate = empty($this->_sqlPreBuild['where']) ? 'WHERE' : 'AND';
+        $this->_sqlPreBuild['action'] = Db::UPDATE;
+        $this->_sqlPreBuild['table'] = $this->filterPrefix($table);
+        return $this;
+    }
 
-        if (func_num_args() <= 1){
-            $this->_sqlPreBuild['where'] .= $operate . '(' . $condition . ')';
-        } else {
-            $args = func_get_args();
-            array_shift($args);
-            $this->_sqlPreBuild['where'] .= $operate . '(' . vsprintf($condition, $this->filterColumn($args)) . ')';
+    /**
+     * 删除记录操作(DELETE)
+     *
+     * @param string $table 需要删除记录的表
+     * @return Query
+     */
+    public function delete($table)
+    {
+        $this->_sqlPreBuild['action'] = Db::DELETE;
+        $this->_sqlPreBuild['table'] = $this->filterPrefix($table);
+        return $this;
+    }
+
+    /**
+     * 插入记录操作(INSERT)
+     *
+     * @param string $table 需要插入记录的表
+     * @return Query
+     */
+    public function insert($table)
+    {
+        $this->_sqlPreBuild['action'] = Db::INSERT;
+        $this->_sqlPreBuild['table'] = $this->filterPrefix($table);
+        return $this;
+    }
+
+    /**
+     * 构造最终查询语句
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        switch ($this->_sqlPreBuild['action']) {
+            case Db::SELECT:
+                return $this->_adapter->parseSelect($this->_sqlPreBuild);
+            case Db::INSERT:
+                return 'INSERT INTO '
+                . $this->_sqlPreBuild['table']
+                . '(' . implode(' , ', array_keys($this->_sqlPreBuild['rows'])) . ')'
+                . ' VALUES '
+                . '(' . implode(' , ', array_values($this->_sqlPreBuild['rows'])) . ')'
+                . $this->_sqlPreBuild['limit'];
+            case Db::DELETE:
+                return 'DELETE FROM '
+                . $this->_sqlPreBuild['table']
+                . $this->_sqlPreBuild['where'];
+            case Db::UPDATE:
+                $columns = array();
+                if (isset($this->_sqlPreBuild['rows'])) {
+                    foreach ($this->_sqlPreBuild['rows'] as $key => $val) {
+                        $columns[] = "$key = $val";
+                    }
+                }
+
+                return 'UPDATE '
+                . $this->_sqlPreBuild['table']
+                . ' SET ' . implode(' , ', $columns)
+                . $this->_sqlPreBuild['where'];
+            default:
+                return NULL;
         }
     }
 }

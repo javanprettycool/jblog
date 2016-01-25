@@ -38,7 +38,6 @@ abstract class Widget{
 
 
 
-
     public static function widget($name, $request = NULL, $params = NULL, $allowResponse = true){
 
         $className = $name;
@@ -72,4 +71,21 @@ abstract class Widget{
     }
 
 
+    public function __get($name)
+    {
+        if (array_key_exists($name, $this->row)) {
+            return $this->row[$name];
+        } else {
+            $method = "___" . $name;
+
+            if (method_exists($method)) {
+                return $this->$method();
+            } else {}
+        }
+    }
+
+    public function __set($name, $value)
+    {
+        $this->row[$name] = $value;
+    }
 }

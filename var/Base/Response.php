@@ -75,4 +75,56 @@ class Response{
         }
         return self::$_instance;
     }
+
+    /**
+     * 设置默认回执编码
+     *
+     * @access public
+     * @param string $charset 字符集
+     * @return void
+     */
+    public function setCharset($charset = null)
+    {
+        $this->_charset = empty($charset) ? self::CHARSET : $charset;
+    }
+
+    /**
+     * 获取字符集
+     *
+     * @access public
+     * @return string
+     */
+    public function getCharset()
+    {
+        if (empty($this->_charset)) {
+            $this->setCharset();
+        }
+
+        return $this->_charset;
+    }
+
+    /**
+     * 在http头部请求中声明类型和字符集
+     *
+     * @access public
+     * @param string $contentType 文档类型
+     * @return void
+     */
+    public function setContentType($contentType = 'text/html')
+    {
+        header('Content-Type: ' . $contentType . '; charset=' . $this->getCharset(), true);
+    }
+
+    /**
+     * 设置http头
+     *
+     * @access public
+     * @param string $name 名称
+     * @param string $value 对应值
+     * @return void
+     */
+    public function setHeader($name, $value)
+    {
+        header($name . ': ' . $value, true);
+    }
 }
