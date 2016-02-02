@@ -1,0 +1,230 @@
+/* =Reset
+-------------------------------------------------------------- */
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+}
+body {
+	line-height: 1;
+}
+ol,
+ul {
+	list-style: none;
+}
+blockquote,
+q {
+	quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+caption,
+th,
+td {
+	font-weight: normal;
+	text-align: left;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	clear: both;
+	font-weight:normal;
+}
+html {
+	overflow-y: scroll;
+	font-size: 100%;
+	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: 100%;
+}
+a:focus {
+	outline: thin dotted;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section {
+	display: block;
+}
+audio,
+canvas,
+video {
+	display: inline-block;
+}
+audio:not([controls]) {
+	display: none;
+}
+del {
+	color: #333;
+}
+ins {
+	background: #fff9c0;
+	text-decoration: none;
+}
+hr {
+	background-color: #ccc;
+	border: 0;
+	height: 1px;
+	margin: 24px;
+	margin-bottom: 1.714285714rem;
+}
+sub,
+sup {
+	font-size: 75%;
+	line-height: 0;
+	position: relative;
+	vertical-align: baseline;
+}
+sup {
+	top: -0.5em;
+}
+sub {
+	bottom: -0.25em;
+}
+img {
+	border: 0;
+	-ms-interpolation-mode: bicubic;
+}
+
+/* Body, links, basics */
+body {
+	font-size: 14px;
+	font-family: Helvetica, Arial, sans-serif;
+	text-rendering: optimizeLegibility;
+	color: #444;
+	background:#E6E6E6;
+}
+body.custom-font-enabled {
+	font-family: "Open Sans", Helvetica, Arial, sans-serif;
+}
+a {
+	outline: none;
+	color: #21759b;
+}
+a:hover {
+	color: #0f3647;
+}
+.clear {clear:both;}
+.yahei {font-family:"Open Sans", Helvetica, Arial,"Microsoft YaHei","Î¢ÈíÑÅºÚ", sans-serif;}
+
+.width {width:960px;padding:24px 40px;margin:48px auto;background:#FFF;overflow:hidden;box-shadow: 0 2px 6px rgba(100, 100, 100, 0.3);}
+.logo {height:72px;overflow:hidden;}
+.logo h1 {height:48px;line-height:48px;font-size:26px;}
+.logo h1 a {color:#515151;text-decoration: none;}
+.logo h1 a:hover {color:#21759b;}
+.logo p.description {height:24px;color:#777;}
+.nav {height:46px;overflow:hidden;padding:24px 0;}
+.nav ul {height:44px;border-top:1px solid #ededed;border-bottom:1px solid #ededed;overflow:hidden;}
+.nav ul li {margin-right:40px;display:inline;}
+.nav ul li a {line-height:44px;color:#6a6a6a;text-decoration:none;}
+.nav ul li a:hover {color:#000;}
+.nav ul li.current a {color:#000;}
+.wrapper {padding:24px 0 48px 0;}
+.grid_4 {float:right;width:250px;}
+.grid_10 {float:left;width:650px;overflow:hidden;}
+.grid_14 {padding-top:24px;border-top:1px solid #ededed;font-size:12px;line-height:32px;}
+.grid_14 a {color:#686868;}
+.grid_14 a:hover {color:#21759b;}
+
+.post {padding-bottom:24px;margin-bottom:48px;border-bottom: 4px double #EDEDED;}
+.post p {line-height:24px;margin-bottom:14px;}
+h2.entry_title {font-size:22px;margin-bottom:24px;}
+h2.entry_title a {text-decoration:none;}
+p.entry_data {margin-bottom:0px;font-size:13px;color:#777;}
+p.data2 {margin-bottom:14px;}
+p.entry_data a {color:#777;}
+
+ol.page-navigator li {display:inline;margin-right:10px;}
+ol.page-navigator li.current a {color:#000;text-decoration:none;}
+
+.widget {margin-bottom:48px;font-size:12px;color:#636363;}
+.widget a {color:#777;}
+.widget a:hover {color:#21759b;}
+.widget h3 {margin-bottom:24px;font-weight:bold;}
+.widget li {height:24px;line-height:24px;overflow:hidden;}
+
+/* Form fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+textarea {
+	padding: 6px;
+	padding: 0.428571429rem;
+	font-family: inherit;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	outline: medium;
+}
+
+input.submit
+{
+	padding: 6px 10px;
+	padding: 0.428571429rem 0.714285714rem;
+	font-size: 11px;
+	font-size: 0.785714286rem;
+	line-height: 1.428571429;
+	font-weight: normal;
+	color: #7c7c7c;
+	background-color: #e6e6e6;
+	background-repeat: repeat-x;
+	background-image: -moz-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: -ms-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: -webkit-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: -o-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: linear-gradient(top, #f4f4f4, #e6e6e6);
+	border: 1px solid #d2d2d2;
+	border-radius: 3px;
+	box-shadow: 0 1px 2px rgba(64, 64, 64, 0.1);
+	cursor: pointer;
+}
+
+input.submit:hover {
+color: #5e5e5e;
+	background-color: #ebebeb;
+	background-repeat: repeat-x;
+	background-image: -moz-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: -ms-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: -webkit-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: -o-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: linear-gradient(top, #f9f9f9, #ebebeb);
+}
+
+.reply h4 {font-size:16px;margin-bottom:48px;}
+h4.response {padding-top:24px;margin-bottom:24px;}
+ol.comment-list li {padding-bottom:24px;border-bottom: 4px double #EDEDED;margin-bottom:24px;}
+ol.comment-list li ol.comment-list {padding-top:10px;}
+ol.comment-list li ol.comment-list li {border-top: 4px double #EDEDED;padding-top:24px;border-bottom:none;margin-bottom:0px;padding-bottom:0px;margin-left:68px;}
+.reply img.avatar {width:44px;height:44px;float:left;margin-right:24px;margin-bottom:24px;}
+.reply cite.fn {font-size:15px;line-height:25px;font-style:normal;}
+.reply cite.fn a {color:#444;text-decoration:none;}
+.reply cite.fn a:hover {color:#21759b;text-decoration:underline;}
+.reply .comment-meta a {color:#777;text-decoration:none;}
+.reply .comment-meta {font-size:13px;}
+.reply p {clear:both;line-height:24px;margin-bottom:14px;}
+.comment-reply {text-align:right;}
+.cancel-comment-reply {text-align:right;padding-top:24px;}
+.comment-reply a , .cancel-comment-reply a {color:#777;}
+.reply label {padding-left:20px;}
+
+.post img {border-radius: 3px;box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);}

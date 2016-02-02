@@ -39,10 +39,10 @@ class Init extends Widget{
         }
 
         /** 初始化时区 */
-        Typecho_Date::setTimezoneOffset($options->timezone);
+        Date::setTimezoneOffset($options->timezone);
 
         /** 开始会话, 减小负载只针对后台打开session支持 */
-        if ($this->widget('Widget_User')->hasLogin()) {
+        if ($this->widget('User')->hasLogin()) {
             @session_start();
         }
 

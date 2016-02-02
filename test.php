@@ -26,9 +26,19 @@ $db->addServer(array (
 
 Db::set($db);
 
-$result = $db->fetchAll(($db->select('slug')->from("table.contents")->where('cid=4')));
+$result = $db->fetchAll(($db->select()->from("table.options")));
+//var_dump($result);
 
-var_dump($result);
+$row = array();
+
+foreach($result as $val) {
+    $row[$val['name']] = $val['value'];
+
+}
+
+$routingTable = $row['routingTable'];
+$routingTable = unserialize($routingTable);
+var_dump($routingTable);
 
 
 

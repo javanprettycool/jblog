@@ -17,11 +17,19 @@ abstract class Widget{
 
     public $sequence = 0;
 
-    public $request = NULL;
+    public $request;
 
-    public $response = NULL;
+    public $response;
 
-    public $config = NULL;
+    public $config;
+
+    /**
+     * 队列长度
+     *
+     * @access public
+     * @var integer
+     */
+    public $length = 0;
 
 
     public function __construct($request, $response, $params = NULL)
@@ -29,6 +37,11 @@ abstract class Widget{
 
         $this->request = $request;
         $this->response = $response;
+        $this->config = new Config();
+
+        if (!empty($params)) {
+            $this->config->setDefault($params);
+        }
 
 
     }
@@ -45,17 +58,17 @@ abstract class Widget{
         if (!isset(self::$_widgetPool[$name])){
 
             if (!class_exists($className)){
-                throw new Handle_Exception($className);
+                throw new HandleException($className);
             }
 
             if (!empty($request)){
-
-            } else {
                 $requestObject = new Request();
+            } else {
+                $requestObject = Request::getInstance();
             }
 
 
-            $responseObject = $allowResponse ? Response::getIntance() : NULL;
+            $responseObject = $allowResponse ? Response::getInstance() : NULL;
 
 
             $widget = new $className($requestObject, $responseObject, $params);
@@ -78,7 +91,7 @@ abstract class Widget{
         } else {
             $method = "___" . $name;
 
-            if (method_exists($method)) {
+            if (method_exists($this, $method)) {
                 return $this->$method();
             } else {}
         }
@@ -87,5 +100,46 @@ abstract class Widget{
     public function __set($name, $value)
     {
         $this->row[$name] = $value;
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->row[$name]);
+    }
+
+    /**
+     * 释放组件
+     *
+     * @access public
+     * @param string $alias 组件名称
+     * @return void
+     */
+    public static function destory($alias)
+    {
+        if (isset(self::$_widgetPool[$alias])) {
+            unset(self::$_widgetPool[$alias]);
+        }
+    }
+
+
+    public function have()
+    {
+        return !empty($this->stack);
+    }
+
+    /**
+     * 将每一行的值压入堆栈
+     *
+     * @param array $value 每一行的值
+     * @return array
+     */
+    public function push(array $value)
+    {
+        //将行数据按顺序置位
+        $this->row = $value;
+        $this->length ++;
+
+        $this->stack[] = $value;
+        return $value;
     }
 }

@@ -7,7 +7,7 @@
 
 
 
-class Handle_Exception extends Exception{
+class HandleException extends Exception{
     public function __construct($message = "", $code = 0)
     {
         $this->message = $message;

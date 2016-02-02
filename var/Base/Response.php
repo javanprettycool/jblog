@@ -127,4 +127,10 @@ class Response{
     {
         header($name . ': ' . $value, true);
     }
+
+    public function redirect($location, $isPermanently = false)
+    {
+        $location = Common::safeUrl($location);
+
+    }
 }

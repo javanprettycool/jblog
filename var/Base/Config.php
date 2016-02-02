@@ -10,7 +10,7 @@ class Config implements Iterator
     private $_currentConfig = array();
 
 
-    public function __construct($config)
+    public function __construct($config = array())
     {
         $this->setDefault($config);
     }
